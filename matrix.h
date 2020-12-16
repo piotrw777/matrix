@@ -21,44 +21,40 @@ ostream & operator<<(ostream &out, const vector<Typ>& V) {
 }
 
 //deklaracja szablonu klas Matrix
-template <size_t N, size_t M, typename Typ>
+template <typename Typ, size_t N, size_t M = N>
 class Matrix;
-
-/*template<size_t N, typename Typ>
-class Matrix<N, N, Typ>;
-*/
 
 //*****************************************
 //szablony funkcji zaprzyjaźnionych
 //*****************************************
 
-template <size_t N, size_t M, typename Typ>
+template <typename Typ, size_t N, size_t M>
 auto get_id_matrix();
 
-template <size_t N, size_t M, typename Typ>
+template <typename Typ, size_t N, size_t M>
 auto get_scalar_matrix(Typ t);
 
-template <size_t N, size_t M, typename Typ>
-ostream & operator<<(ostream &out, Matrix<N, M, Typ> MM);
+template <size_t N, size_t M,typename Typ>
+ostream & operator<<(ostream &out, Matrix<Typ,N, M> MM);
 
 //operator dodawania macierzy
 template <size_t N1, size_t M1,typename Typ1,typename Typ2>
-Matrix<N1,M1,Typ1> operator+(const Matrix<N1, M1, Typ1> &A, const Matrix<N1, M1, Typ2> &B);
+Matrix<Typ1,N1,M1> operator+(const Matrix<Typ1,N1, M1> &A, const Matrix<Typ2,N1, M1> &B);
 
 //operator mnożenia macierzy
 template <size_t N1, size_t M1, size_t N2, size_t M2, typename Typ1,typename Typ2>
-Matrix<N1,M2,Typ1> operator*(const Matrix<N1, M1, Typ1> &A, const Matrix<N2, M2, Typ2> &B);
+Matrix<Typ1,N1,M2> operator*(const Matrix<Typ1,N1, M1> &A, const Matrix<Typ2,N2, M2> &B);
 
 //operator mnożenia macierzy przez stałą t*A
 template <size_t N1, size_t M1, typename Typ1,typename Typ2>
-Matrix<N1,M1,Typ2> operator*(const Typ2 &t, const Matrix<N1, M1, Typ1> &A);
+Matrix<Typ2,N1,M1> operator*(const Typ2 &t, const Matrix<Typ1,N1, M1> &A);
 
 //operator dodawania stałej do macierzy t+A
 template <size_t N1, size_t M1, typename Typ1,typename Typ2>
-Matrix<N1,M1,Typ2> operator+(const Typ2 &t, const Matrix<N1, M1, Typ1> &A);
+Matrix<Typ2,N1,M1> operator+(const Typ2 &t, const Matrix<Typ1,N1, M1> &A);
 
 //szablon klas macierzy NxM o wyrazach typu Typ
-template <size_t N, size_t M, typename Typ>
+template <typename Typ, size_t N, size_t M>
 class Matrix {
 
 private:
@@ -103,7 +99,7 @@ public:
 
     //konstruktor kopiujący
     template<size_t N1, size_t M1, typename Typ1>
-    Matrix(const Matrix<N1, M1,Typ1>& MM) {
+    Matrix(const Matrix<Typ1,N1, M1>& MM) {
         static_assert(N > 0 && M > 0, "Matrix dimension cannot be zero");
         static_assert(N1<=N && M1<=M , "INEQUALITIES");
         static_assert(is_convertible<Typ1, Typ>::value, "No conversion operator in copy constructor!");
@@ -141,8 +137,8 @@ public:
     auto & operator[](int k) const {
         return Mat[k];
     }
-    Matrix<M, N, Typ>  transpose() {
-        Matrix<M, N, Typ> A;
+    Matrix<Typ,M, N>  transpose() {
+        Matrix<Typ,M, N> A;
 
         for(size_t i = 0; i < M; i++) {
             for(size_t j = 0; j < N; j++ ) {
@@ -152,31 +148,31 @@ public:
         return A;
     }
     //deklaracje przyjaźni
-    friend auto get_id_matrix<N, M, Typ>();
-    friend auto get_scalar_matrix<N, M, Typ>(Typ t);
-    friend ostream & operator<< <> (ostream &out, Matrix<N, M, Typ> MM);
+    friend auto get_id_matrix<Typ,N, M>();
+    friend auto get_scalar_matrix<Typ,N, M>(Typ t);
+    friend ostream & operator<< <> (ostream &out, Matrix<Typ,N, M> MM);
 
     template <size_t N1, size_t M1, typename Typ1,typename Typ2>
-    friend Matrix<N1,M1,Typ1> operator+(const Matrix<N1, M1, Typ1> &A, const Matrix<N1, M1, Typ2> &B);
+    friend Matrix<Typ1,N1,M1> operator+(const Matrix<Typ1,N1, M1> &A, const Matrix<Typ2,N1, M1> &B);
 
     template <size_t N1, size_t M1, size_t N2, size_t M2, typename Typ1,typename Typ2>
-    friend Matrix<N1,M2,Typ1> operator*(const Matrix<N1, M1, Typ1> &A, const Matrix<N2, M2, Typ2> &B);
+    friend Matrix<Typ1,N1,M2> operator*(const Matrix<Typ1,N1, M1> &A, const Matrix<Typ2,N2, M2> &B);
 
     template <size_t N1, size_t M1, typename Typ1,typename Typ2>
-    friend Matrix<N1,M1,Typ2> operator*(const Typ2 &t, const Matrix<N1, M1, Typ1> &A);
+    friend Matrix<Typ2,N1,M1> operator*(const Typ2 &t, const Matrix<Typ1,N1, M1> &A);
 
     template <size_t N1, size_t M1, typename Typ1,typename Typ2>
-    friend Matrix<N1,M1,Typ2> operator+(const Typ2 &t, const Matrix<N1, M1, Typ1> &A);
+    friend Matrix<Typ2,N1,M1> operator+(const Typ2 &t, const Matrix<Typ1,N1, M1> &A);
 
-    template <size_t N3, size_t M3, typename Typ3>
+    template <typename Typ3,size_t N3, size_t M3>
     friend class Matrix;
 }; //koniec definicji klasy
 
 //dodawanie macierzy
 template <size_t N1, size_t M1, typename Typ1,typename Typ2>
-Matrix<N1,M1,Typ1> operator+(const Matrix<N1, M1, Typ1> &A, const Matrix<N1, M1, Typ2> &B) {
+Matrix<Typ1,N1,M1> operator+(const Matrix<Typ1,N1, M1> &A, const Matrix<Typ2,N1, M1> &B) {
     static_assert(is_convertible<Typ2, Typ1>::value, "No conversion operator in addition operator!");
-    Matrix<N1, M1, Typ1> Pom;
+    Matrix<Typ1,N1, M1> Pom;
     for(size_t i = 0; i < N1; i++) {
         for(size_t j = 0; j < M1; j++ ) {
             Pom[i][j] = A[i][j] + static_cast<Typ1>(B[i][j]);
@@ -186,11 +182,11 @@ Matrix<N1,M1,Typ1> operator+(const Matrix<N1, M1, Typ1> &A, const Matrix<N1, M1,
 }
 //mnożenie macierzy
 template <size_t N1, size_t M1, size_t N2, size_t M2, typename Typ1,typename Typ2>
-Matrix<N1,M2,Typ1> operator*(const Matrix<N1, M1, Typ1> &A, const Matrix<N2, M2, Typ2> &B) {
+Matrix<Typ1,N1,M2> operator*(const Matrix<Typ1,N1, M1> &A, const Matrix<Typ2,N2, M2> &B) {
     static_assert(M1==N2 , "Wrong dimensions in matrix multiplication");
     static_assert(is_convertible<Typ2, Typ1>::value, "No conversion operator in multiplication operator!");
 
-    Matrix<N1, M2, Typ1> C;
+    Matrix<Typ1,N1, M2> C;
     for(size_t w = 0; w < N1; w++) {
         for(size_t k = 0; k < M2; k++){
             Typ1 t{};
@@ -204,10 +200,10 @@ Matrix<N1,M2,Typ1> operator*(const Matrix<N1, M1, Typ1> &A, const Matrix<N2, M2,
 }
 //mnożenie przez stałą
 template <size_t N1, size_t M1, typename Typ1,typename Typ2>
-Matrix<N1,M1,Typ2> operator*(const Typ2 &t, const Matrix<N1, M1, Typ1> &A) {
+Matrix<Typ2,N1,M1> operator*(const Typ2 &t, const Matrix<Typ1,N1, M1> &A) {
 static_assert(is_convertible<Typ1, Typ2>::value, "No conversion operator in multiplication operator!");
 
-    Matrix<N1, M1, Typ2> B;
+    Matrix<Typ2,N1, M1> B;
     for(size_t i = 0; i < N1; i++) {
        for(size_t j = 0; j < M1; j++) {
             B[i][j] = t*static_cast<Typ2>(A[i][j]);
@@ -218,10 +214,10 @@ static_assert(is_convertible<Typ1, Typ2>::value, "No conversion operator in mult
 
 //dodawanie stałej
 template <size_t N1, size_t M1, typename Typ1,typename Typ2>
-Matrix<N1,M1,Typ2> operator+(const Typ2 &t, const Matrix<N1, M1, Typ1> &A) {
+Matrix<Typ2,N1,M1> operator+(const Typ2 &t, const Matrix<Typ1,N1, M1> &A) {
     static_assert(is_convertible<Typ1, Typ2>::value, "No conversion operator in multiplication operator!");
 
-    Matrix<N1, M1, Typ2> B;
+    Matrix<Typ2,N1, M1> B;
     for(size_t i = 0; i < N1; i++) {
        for(size_t j = 0; j < M1; j++) {
             B[i][j] = t+static_cast<Typ2>(A[i][j]);
@@ -231,9 +227,9 @@ Matrix<N1,M1,Typ2> operator+(const Typ2 &t, const Matrix<N1, M1, Typ1> &A) {
 }
 
 //tworzenie macierzy jednostkowej
-template <size_t N, size_t M, typename Typ>
+template <typename Typ,size_t N, size_t M>
 auto get_id_matrix() {
-    Matrix<N, M, Typ> M1;
+    Matrix<Typ,N, M> M1;
 
     for(size_t i = 0; i < min(N, M); i++) {
         M1[i][i] = static_cast<Typ>(1);
@@ -241,9 +237,9 @@ auto get_id_matrix() {
     return M1;
 }
 //tworzenie macierzy o tych samych wyrazach
-template <size_t N, size_t M, typename Typ>
+template <typename Typ,size_t N, size_t M>
 auto get_scalar_matrix(Typ t) {
-    Matrix<N, M, Typ> M1;
+    Matrix<Typ,N, M> M1;
     vector<Typ> pom(M, t);
 
     for_each(M1.Mat.begin(), M1.Mat.end(), [pom](vector<Typ> &v){v = pom;});
@@ -251,16 +247,11 @@ auto get_scalar_matrix(Typ t) {
 }
 
 template <size_t N, size_t M, typename Typ>
-ostream & operator<<(ostream &out, Matrix<N, M, Typ> MM) {
+ostream & operator<<(ostream &out, Matrix<Typ,N, M> MM) {
     MM.print();
     return out;
 }
 
-/*template<size_t N, typename Typ>
-class Matrix<N, N, Typ> {
-      Matrix(){cout << "Jestem macierza kwadratowa";}
-    
-};
-*/
+
 #endif// __MATRIX
 
